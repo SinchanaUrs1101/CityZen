@@ -1,14 +1,10 @@
 import { getSession } from "@/lib/session";
-import { redirect } from "next/navigation";
 import { ReportIssueForm } from "@/components/report-issue-form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 export default async function ReportIssuePage() {
+  // Allow anonymous reporting: session may be undefined
   const session = await getSession();
-  if (!session) {
-    redirect("/login");
-  }
-
   return (
     <div className="mx-auto max-w-2xl">
         <Card>
@@ -19,7 +15,7 @@ export default async function ReportIssuePage() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <ReportIssueForm user={session.user} />
+                <ReportIssueForm user={session?.user} />
             </CardContent>
         </Card>
     </div>

@@ -23,7 +23,7 @@ function SubmitButton() {
   );
 }
 
-export function ReportIssueForm({ user }: { user: Omit<User, 'password'> }) {
+export function ReportIssueForm({ user }: { user?: Omit<User, 'password'> }) {
   const [errorMessage, dispatch] = useFormState(reportIssue, undefined);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -37,8 +37,17 @@ export function ReportIssueForm({ user }: { user: Omit<User, 'password'> }) {
 
   return (
     <form action={dispatch} className="space-y-6">
-      <input type="hidden" name="userId" value={user.id} />
-      <input type="hidden" name="userName" value={user.name} />
+      {user ? (
+        <>
+          <input type="hidden" name="userId" value={user.id} />
+          <input type="hidden" name="userName" value={user.name} />
+        </>
+      ) : (
+        <>
+          <input type="hidden" name="userId" value={''} />
+          <input type="hidden" name="userName" value={'Anonymous'} />
+        </>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="issue-type">Issue Type (Optional)</Label>

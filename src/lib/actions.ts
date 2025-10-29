@@ -80,8 +80,8 @@ const reportIssueSchema = z.object({
     title: z.string().min(5, "Title must be at least 5 characters"),
     description: z.string().min(20, "Description must be at least 20 characters"),
     location: z.string().min(3, "Location is required"),
-    userId: z.string(),
-    userName: z.string(),
+    userId: z.string().optional(),
+    userName: z.string().optional(),
 });
 
 export async function reportIssue(_prevState: string | undefined, formData: FormData) {
@@ -101,8 +101,8 @@ export async function reportIssue(_prevState: string | undefined, formData: Form
             category: category,
             status: 'Reported',
             location: parsed.location,
-            userId: parsed.userId,
-            userName: parsed.userName,
+            userId: parsed.userId || '0',
+            userName: parsed.userName || 'Anonymous',
             // imageUrl will be handled separately in a real app
         });
 

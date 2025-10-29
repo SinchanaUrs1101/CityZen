@@ -1,75 +1,35 @@
 import type { User, Issue, IssueStatus, IssueCategory, DefaultIssueType, IssueUpdate } from './definitions';
+import { query } from './db';
 
-// In-memory store
+// Fallback in-memory store when DATABASE_URL is not provided (development)
 let users: User[] = [
     { id: '1', name: 'Admin User', email: 'admin@cityzen.app', password: 'password', role: 'admin' },
     { id: '2', name: 'Citizen Kane', email: 'citizen@cityzen.app', password: 'password', role: 'citizen' },
 ];
 
-let issues: Issue[] = [
-    {
-        id: '1',
-        title: 'Large Pothole on Main St',
-        description: 'There is a very large and dangerous pothole in the middle of Main Street, right in front of the public library. It has already caused damage to several cars. It needs immediate attention before someone gets hurt.',
-        summary: 'A large pothole on Main Street near the library is damaging cars and poses a safety risk.',
-        category: 'Roads and Highways',
-        status: 'Reported',
-        location: 'Main Street, near public library',
-        imageUrl: 'https://picsum.photos/seed/pothole/600/400',
-        imageHint: 'pothole road',
-        userId: '2',
-        userName: 'Citizen Kane',
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        updates: [{
-            timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'Reported'
-        }]
-    },
-    {
-        id: '2',
-        title: 'Graffiti on park bench',
-        description: 'Someone spray-painted graffiti on one of the new benches in Central Park. It is inappropriate and needs to be cleaned up.',
-        summary: 'Inappropriate graffiti on a new bench in Central Park needs removal.',
-        category: 'Parks and Recreation',
-        status: 'In Progress',
-        location: 'Central Park',
-        imageUrl: 'https://picsum.photos/seed/graffiti/600/400',
-        imageHint: 'graffiti wall',
-        userId: '2',
-        userName: 'Citizen Kane',
-        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        updates: [
-            { timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), status: 'Reported' },
-            { timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), status: 'In Progress', notes: 'Cleanup crew has been assigned.' }
-        ]
-    },
-    {
-        id: '3',
-        title: 'Overflowing trash can',
-        description: 'The trash can at the bus stop on 5th and Elm is completely full and trash is spilling onto the sidewalk.',
-        summary: 'Trash can at 5th and Elm bus stop is overflowing.',
-        category: 'Waste Management',
-        status: 'Resolved',
-        location: '5th and Elm',
-        imageUrl: 'https://picsum.photos/seed/trash/600/400',
-        imageHint: 'overflowing trash',
-        userId: '2',
-        userName: 'Citizen Kane',
-        createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-        updates: [
-            { timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), status: 'Reported' },
-            { timestamp: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(), status: 'In Progress' },
-            { timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(), status: 'Resolved', notes: 'Trash has been collected.' }
-        ]
-    }
-];
+let issues: Issue[] = [];
+
+const hasDb = !!process.env.DATABASE_URL;
+
+// If DB is present, developer should create tables (see README). We attempt DB operations when configured.
 
 // User Functions
 export async function findUserByEmail(email: string): Promise<User | undefined> {
+    if (hasDb) {
+        const res = await query('SELECT * FROM users WHERE email = $1 LIMIT 1', [email]);
+        return res.rows[0] as User | undefined;
+    }
     return users.find(user => user.email === email);
 }
 
 export async function createUser(userData: Omit<User, 'id'>): Promise<User> {
+    if (hasDb) {
+        const res = await query(
+            `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *`,
+            [userData.name, userData.email, userData.password, userData.role]
+        );
+        return res.rows[0] as User;
+    }
     const newUser: User = {
         id: (users.length + 1).toString(),
         ...userData
@@ -79,11 +39,23 @@ export async function createUser(userData: Omit<User, 'id'>): Promise<User> {
 }
 
 export async function findUserById(id: string): Promise<User | undefined> {
+    if (hasDb) {
+        const res = await query('SELECT * FROM users WHERE id = $1 LIMIT 1', [id]);
+        return res.rows[0] as User | undefined;
+    }
     return users.find(user => user.id === id);
 }
 
 // Issue Functions
 export async function getIssues(userId?: string): Promise<Issue[]> {
+    if (hasDb) {
+        if (userId) {
+            const res = await query('SELECT * FROM issues WHERE userId = $1 ORDER BY createdAt DESC', [userId]);
+            return res.rows as Issue[];
+        }
+        const res = await query('SELECT * FROM issues ORDER BY createdAt DESC');
+        return res.rows as Issue[];
+    }
     if (userId) {
         return issues.filter(issue => issue.userId === userId).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
@@ -91,11 +63,25 @@ export async function getIssues(userId?: string): Promise<Issue[]> {
 }
 
 export async function getIssueById(issueId: string): Promise<Issue | undefined> {
+    if (hasDb) {
+        const res = await query('SELECT * FROM issues WHERE id = $1 LIMIT 1', [issueId]);
+        return res.rows[0] as Issue | undefined;
+    }
     return issues.find(issue => issue.id === issueId);
 }
 
 export async function createIssue(issueData: Omit<Issue, 'id' | 'createdAt' | 'updates'>): Promise<Issue> {
     const now = new Date().toISOString();
+    if (hasDb) {
+        const updates = JSON.stringify([{ timestamp: now, status: 'Reported' }]);
+        const res = await query(
+            `INSERT INTO issues (title, description, summary, category, status, location, imageUrl, imageHint, userId, userName, createdAt, updates)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+            [issueData.title, issueData.description, issueData.summary, issueData.category, issueData.status, issueData.location, issueData.imageUrl || null, issueData.imageHint || null, issueData.userId, issueData.userName, now, updates]
+        );
+        return res.rows[0] as Issue;
+    }
+
     const newIssue: Issue = {
         id: (issues.length + 1).toString(),
         createdAt: now,
@@ -107,6 +93,16 @@ export async function createIssue(issueData: Omit<Issue, 'id' | 'createdAt' | 'u
 }
 
 export async function updateIssueStatus(issueId: string, status: IssueStatus, notes?: string): Promise<Issue | undefined> {
+    if (hasDb) {
+        const now = new Date().toISOString();
+        // append to updates JSONB array and set status
+        const res = await query(
+            `UPDATE issues SET status = $1, updates = COALESCE(updates, '[]'::jsonb) || $2 WHERE id = $3 RETURNING *`,
+            [status, JSON.stringify({ timestamp: now, status, ...(notes ? { notes } : {}) }), issueId]
+        );
+        return res.rows[0] as Issue | undefined;
+    }
+
     const issueIndex = issues.findIndex(issue => issue.id === issueId);
     if (issueIndex > -1) {
         const newUpdate: IssueUpdate = {

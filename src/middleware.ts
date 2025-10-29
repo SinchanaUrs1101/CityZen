@@ -8,10 +8,18 @@ export async function middleware(request: NextRequest) {
 
   const isAuthPage = pathname === '/login' || pathname === '/signup';
 
+  // Public pages that should be accessible without authentication
+  const publicPaths = ['/', '/report-issue', '/issues'];
+
   if (isAuthPage) {
     if (session) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
+    return NextResponse.next();
+  }
+
+  // Allow public paths (exact or prefix match) without a session
+  if (publicPaths.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
     return NextResponse.next();
   }
 
