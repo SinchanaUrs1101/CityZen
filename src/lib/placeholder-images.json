@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "pothole",
+      "description": "A pothole in a city road",
+      "imageUrl": "https://images.unsplash.com/photo-1657811146442-0d66d65dbe92?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwb3Rob2xlJTIwcm9hZHxlbnwwfHx8fDE3NjE3MjI0NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pothole road"
+    },
+    {
+      "id": "graffiti",
+      "description": "Graffiti on a brick wall",
+      "imageUrl": "https://images.unsplash.com/photo-1487452066049-a710f7296400?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxncmFmZml0aSUyMHdhbGx8ZW58MHx8fHwxNzYxNzA1MzIyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "graffiti wall"
+    },
+    {
+      "id": "trash",
+      "description": "An overflowing public trash can",
+      "imageUrl": "https://images.unsplash.com/photo-1738717193515-cdd64b487090?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxvdmVyZmxvd2luZyUyMHRyYXNofGVufDB8fHx8MTc2MTYxNzUyN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "overflowing trash"
+    },
+    {
+      "id": "streetlight",
+      "description": "A broken street light at dusk",
+      "imageUrl": "https://images.unsplash.com/photo-1699803031544-87b9b81731f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxicm9rZW4lMjBzdHJlZXRsaWdodHxlbnwwfHx8fDE3NjE2ODI0NzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "broken streetlight"
+    },
+    {
+      "id": "water_leak",
+      "description": "Water leaking from a pipe onto a street",
+      "imageUrl": "https://images.unsplash.com/photo-1648731981193-161b6c728d64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d2F0ZXIlMjBsZWFrfGVufDB8fHx8MTc2MTcyMjQ2N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "water leak"
+    },
+    {
+      "id": "damaged_sign",
+      "description": "A damaged street sign",
+      "imageUrl": "https://images.unsplash.com/photo-1753321502406-1080e62e26c8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxkYW1hZ2VkJTIwc2lnbnxlbnwwfHx8fDE3NjE3MjI0Njd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "damaged sign"
+    }
+  ]
 }
